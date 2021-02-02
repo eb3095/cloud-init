@@ -34,7 +34,7 @@ def get_metadata(params):
                 v1 = fetch_metadata(params)
         except (NoDHCPLeaseError) as exc:
             raise RuntimeError("DHCP failed, cannot continue. Exception: %s"
-                                % exc)
+                               % exc)
 
         v1_json = json.loads(v1)
         METADATA = v1_json
