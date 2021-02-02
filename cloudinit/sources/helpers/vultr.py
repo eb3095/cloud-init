@@ -6,7 +6,6 @@ import json
 import os
 import copy
 import re
-import ipaddress
 
 from cloudinit import log as log
 from cloudinit import url_helper
@@ -14,6 +13,7 @@ from cloudinit import dmi
 from cloudinit import util
 from cloudinit import net
 from cloudinit import subp
+from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 
 # Get logger
 LOGGER = log.getLogger(__name__)

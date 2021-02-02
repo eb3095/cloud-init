@@ -11,7 +11,6 @@ import re
 from cloudinit import log as log
 from cloudinit import sources
 from cloudinit import util
-from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 
 import cloudinit.sources.helpers.vultr as vultr
 
