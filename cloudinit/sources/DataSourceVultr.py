@@ -107,7 +107,7 @@ class DataSourceVultr(sources.DataSource):
 
 # Used to match classes to dependencies
 datasources = [
-    (DataSourceVultr, (sources.DEP_FILESYSTEM)),
+    (DataSourceVultr, (sources.DEP_FILESYSTEM, )),
 ]
 
 
