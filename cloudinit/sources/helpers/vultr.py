@@ -49,13 +49,13 @@ def bring_up_interface():
 # Close EphermalDHCP so its not left open
 def close_ephermeral():
     # No action if its not open
-    if EHP == None:
+    if EHP is None:
         return
 
     EHP.__exit__()
 
     # Cleanup
-    EHP == None
+    EHP = None
 
 
 # Cache the metadata for optimization
