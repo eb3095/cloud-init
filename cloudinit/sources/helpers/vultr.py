@@ -35,7 +35,7 @@ def bring_up_interface(connectivity_url=None):
     interface = net.find_fallback_nic()
 
     # Make sure its not up already
-    if net.is_up(interface) or not net.has_url_connectivity(connectivity_url):
+    if net.is_up(interface) and net.has_url_connectivity(connectivity_url):
         return
 
     # Bring up interface in local
