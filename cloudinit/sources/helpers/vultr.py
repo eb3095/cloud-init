@@ -31,16 +31,13 @@ def bring_up_interface(connectivity_url=None):
     if EHP is not None:
         return
 
-    # Grab default interface
-    interface = net.find_fallback_nic()
-
     # Make sure its not up already
     if net.has_url_connectivity(connectivity_url):
         return
 
     # Bring up interface in local
     try:
-        EHP = EphemeralDHCPv4()
+        EHP = EphemeralDHCPv4(net.find_fallback_nic())
         EHP.obtain_lease()
     except (NoDHCPLeaseError) as exc:
         LOGGER.error("DHCP failed, cannot continue. Exception: %s",
