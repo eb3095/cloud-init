@@ -26,7 +26,7 @@ EHP = None
 
 def bring_up_interface():
     # If for whatever reason this is up, bail
-    if EHP not None:
+    if EHP is not None:
         return
 
     # Grab default interface
@@ -39,10 +39,10 @@ def bring_up_interface():
     # Bring up interface in local
     try:
         EHP = EphemeralDHCPv4():
-        EHP.__enter__()
+        EHP.obtain_lease()
     except (NoDHCPLeaseError) as exc:
         LOGGER.error("DHCP failed, cannot continue. Exception: %s",
-                        exc)
+                     exc)
         raise
 
 
@@ -52,7 +52,7 @@ def close_ephermeral():
     if EHP is None:
         return
 
-    EHP.__exit__()
+    EHP.clean_network()
 
     # Cleanup
     EHP = None
