@@ -24,7 +24,7 @@ METADATA = None
 EHP = None
 
 
-def bring_up_interface(connectivity_url = None):
+def bring_up_interface(connectivity_url=None):
     global EHP
 
     # If for whatever reason this is up, bail
