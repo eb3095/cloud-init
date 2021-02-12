@@ -38,7 +38,7 @@ def bring_up_interface(connectivity_url = None):
 
     # Bring up interface in local
     try:
-        EHP = EphemeralDHCPv4():
+        EHP = EphemeralDHCPv4()
         EHP.obtain_lease()
     except (NoDHCPLeaseError) as exc:
         LOGGER.error("DHCP failed, cannot continue. Exception: %s",
