@@ -24,7 +24,7 @@ METADATA = None
 EHP = None
 
 
-def bring_up_interface():
+def bring_up_interface(connectivity_url = None):
     # If for whatever reason this is up, bail
     if EHP is not None:
         return
@@ -33,7 +33,7 @@ def bring_up_interface():
     interface = net.find_fallback_nic()
 
     # Make sure its not up already
-    if net.is_up(interface):
+    if net.is_up(interface) or not net.has_url_connectivity(connectivity_url):
         return
 
     # Bring up interface in local
@@ -64,7 +64,7 @@ def get_metadata(params):
 
     if not METADATA:
         # Bring up interface in local
-        bring_up_interface()
+        bring_up_interface(params['url'])
 
         # Fetch the metadata
         v1 = fetch_metadata(params)
