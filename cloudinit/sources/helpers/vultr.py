@@ -25,6 +25,8 @@ EHP = None
 
 
 def bring_up_interface(connectivity_url = None):
+    global EHP
+
     # If for whatever reason this is up, bail
     if EHP is not None:
         return
@@ -48,6 +50,8 @@ def bring_up_interface(connectivity_url = None):
 
 # Close EphermalDHCP so its not left open
 def close_ephermeral():
+    global EHP
+
     # No action if its not open
     if EHP is None:
         return
