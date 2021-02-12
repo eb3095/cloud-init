@@ -21,6 +21,41 @@ LOGGER = log.getLogger(__name__)
 # Cache
 MAC_TO_NICS = None
 METADATA = None
+EHP = None
+
+
+def bring_up_interface():
+    # If for whatever reason this is up, bail
+    if EHP not None:
+        return
+
+    # Grab default interface
+    interface = net.find_fallback_nic()
+
+    # Make sure its not up already
+    if net.is_up(interface):
+        return
+
+    # Bring up interface in local
+    try:
+        EHP = EphemeralDHCPv4():
+        EHP.__enter__()
+    except (NoDHCPLeaseError) as exc:
+        LOGGER.error("DHCP failed, cannot continue. Exception: %s",
+                        exc)
+        raise
+
+
+# Close EphermalDHCP so its not left open
+def close_ephermeral():
+    # No action if its not open
+    if EHP == None:
+        return
+
+    EHP.__exit__()
+
+    # Cleanup
+    EHP == None
 
 
 # Cache the metadata for optimization
@@ -29,13 +64,13 @@ def get_metadata(params):
 
     if not METADATA:
         # Bring up interface in local
-        try:
-            with EphemeralDHCPv4(net.find_fallback_nic()):
-                v1 = fetch_metadata(params)
-        except (NoDHCPLeaseError) as exc:
-            LOGGER.error("DHCP failed, cannot continue. Exception: %s",
-                         exc)
-            raise
+        bring_up_interface()
+
+        # Fetch the metadata
+        v1 = fetch_metadata(params)
+
+        # Close EphermeralDHCP when we are done
+        close_ephermeral()
 
         v1_json = json.loads(v1)
         METADATA = v1_json
