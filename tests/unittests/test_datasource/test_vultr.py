@@ -16,6 +16,8 @@ from cloudinit.tests.helpers import mock, CiTestCase
 
 # Large data
 SCRIPT1 = 'IyEvYmluL2Jhc2gKZXRodG9vbCAtTCBldGgwIGNvbWJp' \
+          'bmVkICQobnByb2MgLS1hbGwp'
+SCRIPT2 = 'IyEvYmluL2Jhc2gKZXRodG9vbCAtTCBldGgwIGNvbWJp' \
           'bmVkICQobnByb2MgLS1hbGwpCmV0aHRvb2wgLUwgZXRo' \
           'MSBjb21iaW5lZCAkKG5wcm9jIC0tYWxsKQ=='
 
@@ -278,7 +280,7 @@ EXPECTED_VULTR_CONFIG_2 = {
     },
     'write_files': [
         {
-            'content': SCRIPT1,
+            'content': SCRIPT2,
             'encoding': 'b64',
             'owner': 'root:root',
             'path': '/var/lib/scripts/vendor/vultr-interface-setup.sh',
