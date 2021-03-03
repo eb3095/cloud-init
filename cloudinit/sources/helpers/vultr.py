@@ -15,71 +15,36 @@ from cloudinit import net
 from cloudinit import subp
 from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 
-# Get logger
-LOGGER = log.getLogger(__name__)
+# Get LOG
+LOG = log.getLOG(__name__)
 
-# Cache
-MAC_TO_NICS = None
-METADATA = None
-EHP = None
-
-
-def bring_up_interface(connectivity_url=None):
-    global EHP
-
-    # If for whatever reason this is up, bail
-    if EHP is not None:
-        return
-
-    # Make sure its not up already
-    if net.has_url_connectivity(connectivity_url):
-        return
-
-    # Bring up interface in local
-    try:
-        EHP = EphemeralDHCPv4(net.find_fallback_nic())
-        EHP.obtain_lease()
-    except (NoDHCPLeaseError) as exc:
-        LOGGER.error("DHCP failed, cannot continue. Exception: %s",
-                     exc)
-        raise
-
-
-# Close EphermalDHCP so its not left open
-def close_ephermeral():
-    global EHP
-
-    # No action if its not open
-    if EHP is None:
-        return
-
-    EHP.clean_network()
-
-    # Cleanup
-    EHP = None
-
-
-# Cache the metadata for optimization
+@lru_cache(maxsize=None)
 def get_metadata(params):
-    global METADATA
+    # Bring up interface in local
+    bring_up_interface(params['url'])
 
-    if not METADATA:
-        # Bring up interface in local
-        bring_up_interface(params['url'])
-
+    # Make sure interface is not up already
+    if net.has_url_connectivity(connectivity_url):
         # Fetch the metadata
         v1 = fetch_metadata(params)
+    else
+        # Bring up interface
+        try:
+            with EphemeralDHCPv4(connectivity_url=params['url']):
+                # Fetch the metadata
+                v1 = fetch_metadata(params)
+        except (NoDHCPLeaseError) as exc:
+            LOG.error("DHCP failed, cannot continue. Exception: %s",
+                    exc)
+                raise
 
-        # Close EphermeralDHCP when we are done
-        close_ephermeral()
+    v1_json = json.loads(v1)
+    metadata = v1_json
 
-        v1_json = json.loads(v1)
-        METADATA = v1_json
+    # This comes through as a string but is JSON, make a dict
+    metadata['vendor-config'] = json.loads(metadata['vendor-config'])
 
-        # This comes through as a string but is JSON, make a dict
-        METADATA['vendor-config'] = json.loads(METADATA['vendor-config'])
-
-    return METADATA
+    return metadata
 
 
 # Read the system information from SMBIOS
@@ -92,21 +57,6 @@ def get_sysinfo():
     }
 
 
-# Get kernel parameters
-def get_kernel_parameters():
-    if not os.path.exists("/proc/cmdline"):
-        return ""
-
-    file = open("/proc/cmdline")
-    content = file.read()
-    file.close()
-
-    if "root=" not in content:
-        return ""
-
-    return re.sub(r'.+root=', '', content)[1].strip()
-
-
 # Confirm is Vultr
 def is_vultr():
     # VC2, VDC, and HFC use DMI
@@ -116,7 +66,7 @@ def is_vultr():
         return True
 
     # Baremetal requires a kernel parameter
-    if "vultr" in get_kernel_parameters():
+    if "vultr" in util.get_cmdline():
         return True
 
     # An extra fallback if the others fail
@@ -139,7 +89,7 @@ def write_vendor_script(fname, content):
     try:
         subp.subp(command)
     except Exception as err:
-        LOGGER.error(
+        LOG.error(
             "Command: %s failed to execute. Error: %s",
             " ".join(command), err)
         raise
@@ -168,18 +118,19 @@ def fetch_metadata(params):
     return read_metadata(req)
 
 
+# Wrapped for caching
+@lru_cache(maxsize=None)
+def get_interface_map():
+    return net.get_interfaces_by_mac()
+
 # Convert macs to nics
 def get_interface_name(mac):
-    global MAC_TO_NICS
+    macs_to_nic = get_interface_map()
 
-    # Define it if empty
-    if not MAC_TO_NICS:
-        MAC_TO_NICS = net.get_interfaces_by_mac()
-
-    if mac not in MAC_TO_NICS:
+    if mac not in macs_to_nic:
         return None
 
-    return MAC_TO_NICS.get(mac)
+    return macs_to_nic.get(mac)
 
 
 # Generate network configs
@@ -309,7 +260,7 @@ def generate_config(config):
 
     # Define vendor script
     vendor_script = []
-    vendor_script.append("!/bin/bash")
+    vendor_script.append("#!/bin/bash")
 
     # Go through the interfaces
     for netcfg in config_template['network']['config']:
