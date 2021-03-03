@@ -6,7 +6,6 @@
 # https://www.vultr.com/metadata/
 
 import json
-import re
 
 from cloudinit import log as log
 from cloudinit import sources
