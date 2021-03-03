@@ -42,12 +42,14 @@ def get_metadata(params):
     # This comes through as a string but is JSON, make a dict
     metadata['vendor-config'] = json.loads(metadata['vendor-config'])
 
-    LOG.debug("Metadata: %s", metadata)
     return metadata
 
 
+def get_cached_metadata(args):
+    return json.loads(get_metadata(), args)
+
+
 # Read the system information from SMBIOS
-@lru_cache()
 def get_sysinfo():
     return {
         'manufacturer': dmi.read_dmi_data("system-manufacturer"),
@@ -124,7 +126,7 @@ def get_interface_name(mac):
 
 # Generate network configs
 def generate_network_config(config):
-    md = get_metadata(config)
+    md = get_cached_metadata(config)
 
     network = {
         "version": 1,
@@ -233,7 +235,7 @@ def generate_private_network_interface(md):
 # images are deployed on Vultr before Cloud-Init
 def generate_config(config):
     LOG.debug("DS: %s", json.dumps(config))
-    md = get_metadata(config)
+    md = get_cached_metadata(config)
 
     # Grab the startup script
     script = md['startup-script']
