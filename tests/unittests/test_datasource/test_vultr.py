@@ -15,7 +15,9 @@ from cloudinit.sources.helpers import vultr
 from cloudinit.tests.helpers import mock, CiTestCase
 
 # Large data
-SCRIPT1 = 'IyEvYmluL2Jhc2gKZXRodG9vbCAtTCBldGgwIGNvbWJpbmVkICQobnByb2MgLS1hbGwpCmV0aHRvb2wgLUwgZXRoMSBjb21iaW5lZCAkKG5wcm9jIC0tYWxsKQ=='
+SCRIPT1 = 'IyEvYmluL2Jhc2gKZXRodG9vbCAtTCBldGgwIGNvbWJp' \
+          'bmVkICQobnByb2MgLS1hbGwpCmV0aHRvb2wgLUwgZXRo' \
+          'MSBjb21iaW5lZCAkKG5wcm9jIC0tYWxsKQ=='
 
 # Vultr metadata test data
 VULTR_V1_1 = {
