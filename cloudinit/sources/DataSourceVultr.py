@@ -123,7 +123,6 @@ if __name__ == "__main__":
     import sys
 
     if not vultr.is_vultr():
-        LOG.debug("Machine is not a Vultr instance")
         print("Machine is not a Vultr instance")
         sys.exit(1)
 
