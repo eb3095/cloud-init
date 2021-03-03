@@ -226,6 +226,7 @@ def generate_private_network_interface(md):
 # This configuration is to replicate how
 # images are deployed on Vultr before Cloud-Init
 def generate_config(config):
+    LOG.info(json.dumps(config))
     md = get_metadata(config)
 
     # Grab the startup script

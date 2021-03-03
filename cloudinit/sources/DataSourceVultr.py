@@ -31,15 +31,14 @@ class DataSourceVultr(sources.DataSource):
         self.ds_cfg = util.mergemanydict([
             util.get_cfg_by_path(sys_cfg, ["datasource", "Vultr"], {}),
             BUILTIN_DS_CONFIG])
-        defaults = BUILTIN_DS_CONFIG.deepcopy()
         BUILTIN_DS_CONFIG['url'] = self.ds_cfg.get(
-            'url', defaults['url'])
+            'url', BUILTIN_DS_CONFIG['url'])
         BUILTIN_DS_CONFIG['retries'] = self.ds_cfg.get(
-            'retries', defaults['retries'])
+            'retries', BUILTIN_DS_CONFIG['retries'])
         BUILTIN_DS_CONFIG['timeout'] = self.ds_cfg.get(
-            'timeout', defaults['timeout'])
+            'timeout', BUILTIN_DS_CONFIG['timeout'])
         BUILTIN_DS_CONFIG['wait'] = self.ds_cfg.get(
-            'wait', defaults['wait'])
+            'wait', BUILTIN_DS_CONFIG['wait'])
 
     # Initiate data and check if Vultr
     def _get_data(self):
