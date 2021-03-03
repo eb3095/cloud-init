@@ -42,7 +42,7 @@ def get_metadata(params):
     # This comes through as a string but is JSON, make a dict
     metadata['vendor-config'] = json.loads(metadata['vendor-config'])
 
-    return metadata
+    return json.dumps(metadata)
 
 
 def get_cached_metadata(args):
