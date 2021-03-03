@@ -263,8 +263,12 @@ def generate_config(config):
                 command = "ethtool -L %s combined $(nproc --all)" % name
                 vendor_script = '%s\n%s' % (vendor_script, command)
 
+    # Add write_files if it is not present in the template
+    if 'write_files' not in config_template.keys():
+        config_template['write_files'] = []
+
     # Add vendor script to config
-    config_template['write_files'] = [
+    config_template['write_files'].append(
         {
             'encoding': 'b64',
             'content': convert_to_base64(vendor_script),
@@ -272,7 +276,7 @@ def generate_config(config):
             'path': '/var/lib/scripts/vendor/vultr-interface-setup.sh',
             'permissions': '0750'
         }
-    ]
+    )
 
     # Write the startup script
     if script and script != "echo No configured startup script":
