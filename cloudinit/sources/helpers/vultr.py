@@ -19,7 +19,7 @@ from functools import lru_cache
 LOG = log.getLogger(__name__)
 
 
-@lru_cache()
+@lru_cache(maxsize=None)
 def get_metadata(params):
     # Make sure interface is not up already
     if net.has_url_connectivity(params['url']):
