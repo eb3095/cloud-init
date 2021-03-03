@@ -16,7 +16,7 @@ from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 from functools import lru_cache
 
 # Get LOG
-LOG = log.getLOG(__name__)
+LOG = log.getLogger(__name__)
 
 
 @lru_cache()
