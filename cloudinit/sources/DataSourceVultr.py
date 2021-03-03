@@ -85,6 +85,11 @@ class DataSourceVultr(sources.DataSource):
     def get_metadata(self):
         return vultr.get_metadata(BUILTIN_DS_CONFIG)
 
+    # Compare subid as instance id
+    def check_instance_id(self, sys_cfg):
+        subid = vultr.get_sysinfo()['subid']
+        return sources.instance_id_matches_system_uuid(subid)
+
     # Currently unsupported
     @property
     def launch_index(self):
@@ -112,5 +117,20 @@ datasources = [
 # Return a list of data sources that match this set of dependencies
 def get_datasource_list(depends):
     return sources.list_from_depends(depends, datasources)
+
+
+if __name__ == "__main__":
+    import sys
+
+    if not vultr.is_vultr():
+        LOG.debug("Machine is not a Vultr instance")
+        print("Machine is not a Vultr instance")
+        sys.exit(1)
+
+    config = vultr.generate_config(BUILTIN_DS_CONFIG)
+    subid = vultr.get_sysinfo()['subid']
+
+    print("SUBID: %s" % subid)
+    print(json.dumps(config, indent=1))
 
 # vi: ts=4 expandtab
