@@ -82,7 +82,7 @@ class DataSourceVultr(sources.DataSource):
 
     # Get the metadata by flag
     def get_metadata(self):
-        return vultr.get_metadata(BUILTIN_DS_CONFIG)
+        return json.loads(vultr.get_metadata(BUILTIN_DS_CONFIG))
 
     # Compare subid as instance id
     def check_instance_id(self, sys_cfg):
