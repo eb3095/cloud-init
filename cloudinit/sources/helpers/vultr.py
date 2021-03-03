@@ -50,6 +50,7 @@ def get_metadata(params):
 
 
 # Read the system information from SMBIOS
+@lru_cache()
 def get_sysinfo():
     return {
         'manufacturer': dmi.read_dmi_data("system-manufacturer"),

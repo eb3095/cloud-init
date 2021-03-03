@@ -127,9 +127,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     config = vultr.generate_config(BUILTIN_DS_CONFIG)
-    subid = vultr.get_sysinfo()['subid']
+    sysinfo = vultr.get_sysinfo()
 
-    print("SUBID: %s" % subid)
+    print(json.dumps(sysinfo, indent=1))
     print(json.dumps(config, indent=1))
 
 # vi: ts=4 expandtab
