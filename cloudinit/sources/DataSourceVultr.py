@@ -13,7 +13,7 @@ from cloudinit import util
 
 import cloudinit.sources.helpers.vultr as vultr
 
-LOG = log.getLOG(__name__)
+LOG = log.getLogger(__name__)
 BUILTIN_DS_CONFIG = {
     'url': 'http://169.254.169.254',
     'retries': 30,
