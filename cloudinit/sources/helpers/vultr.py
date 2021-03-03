@@ -20,6 +20,7 @@ from functools import lru_cache
 # Get LOG
 LOG = log.getLOG(__name__)
 
+
 @lru_cache()
 def get_metadata(params):
     # Bring up interface in local
@@ -29,7 +30,7 @@ def get_metadata(params):
     if net.has_url_connectivity(connectivity_url):
         # Fetch the metadata
         v1 = fetch_metadata(params)
-    else
+    else:
         # Bring up interface
         try:
             with EphemeralDHCPv4(connectivity_url=params['url']):
@@ -37,7 +38,7 @@ def get_metadata(params):
                 v1 = fetch_metadata(params)
         except (NoDHCPLeaseError) as exc:
             LOG.error("DHCP failed, cannot continue. Exception: %s",
-                       exc)
+                      exc)
                 raise
 
     v1_json = json.loads(v1)
@@ -113,6 +114,7 @@ def fetch_metadata(params):
 @lru_cache()
 def get_interface_map():
     return net.get_interfaces_by_mac()
+
 
 # Convert macs to nics
 def get_interface_name(mac):
