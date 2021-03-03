@@ -46,7 +46,7 @@ def get_metadata(params):
 
 
 def get_cached_metadata(args):
-    return json.loads(get_metadata(), args)
+    return json.loads(get_metadata(args))
 
 
 # Read the system information from SMBIOS
