@@ -21,6 +21,8 @@ LOG = log.getLogger(__name__)
 
 @lru_cache()
 def get_metadata(params):
+    params = json.loads(params)
+
     # Make sure interface is not up already
     if net.has_url_connectivity(params['url']):
         # Fetch the metadata
@@ -46,7 +48,7 @@ def get_metadata(params):
 
 
 def get_cached_metadata(args):
-    return json.loads(get_metadata(args))
+    return json.loads(get_metadata(json.dumps(args)))
 
 
 # Read the system information from SMBIOS
