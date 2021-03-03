@@ -42,6 +42,7 @@ def get_metadata(params):
     # This comes through as a string but is JSON, make a dict
     metadata['vendor-config'] = json.loads(metadata['vendor-config'])
 
+    LOG.debug("Metadata: %s", metadata)
     return metadata
 
 
