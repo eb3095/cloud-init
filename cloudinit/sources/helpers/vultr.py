@@ -16,20 +16,25 @@ from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 from functools import lru_cache
 
 # Get LOG
-LOG = log.getLogger(__name__)
+LOG = log.getLOG(__name__)
 
 
 @lru_cache()
 def get_metadata(params):
-    # Bring up interface
-    try:
-        with EphemeralDHCPv4(connectivity_url=params['url']):
-            # Fetch the metadata
-            v1 = fetch_metadata(params)
-    except (NoDHCPLeaseError) as exc:
-        LOG.error("DHCP failed, cannot continue. Exception: %s",
-                  exc)
-        raise
+    # Make sure interface is not up already
+    if net.has_url_connectivity(params['url']):
+        # Fetch the metadata
+        v1 = fetch_metadata(params)
+    else:
+        # Bring up interface
+        try:
+            with EphemeralDHCPv4(connectivity_url=params['url']):
+                # Fetch the metadata
+                v1 = fetch_metadata(params)
+        except (NoDHCPLeaseError) as exc:
+            LOG.error("DHCP failed, cannot continue. Exception: %s",
+                      exc)
+            raise
 
     v1_json = json.loads(v1)
     metadata = v1_json
@@ -118,6 +123,7 @@ def get_interface_name(mac):
 
 # Generate network configs
 def generate_network_config(config):
+    LOG.debug("DS: %s", json.dumps(config))
     md = get_metadata(config)
 
     network = {
@@ -226,7 +232,6 @@ def generate_private_network_interface(md):
 # This configuration is to replicate how
 # images are deployed on Vultr before Cloud-Init
 def generate_config(config):
-    LOG.info(json.dumps(config))
     md = get_metadata(config)
 
     # Grab the startup script
