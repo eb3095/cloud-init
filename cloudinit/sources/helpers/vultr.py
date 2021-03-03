@@ -5,7 +5,6 @@
 import json
 import os
 import copy
-import re
 import base64
 
 from cloudinit import log as log
@@ -13,7 +12,6 @@ from cloudinit import url_helper
 from cloudinit import dmi
 from cloudinit import util
 from cloudinit import net
-from cloudinit import subp
 from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
 from functools import lru_cache
 
@@ -23,23 +21,15 @@ LOG = log.getLOG(__name__)
 
 @lru_cache()
 def get_metadata(params):
-    # Bring up interface in local
-    bring_up_interface(params['url'])
-
-    # Make sure interface is not up already
-    if net.has_url_connectivity(connectivity_url):
-        # Fetch the metadata
-        v1 = fetch_metadata(params)
-    else:
-        # Bring up interface
-        try:
-            with EphemeralDHCPv4(connectivity_url=params['url']):
-                # Fetch the metadata
-                v1 = fetch_metadata(params)
-        except (NoDHCPLeaseError) as exc:
-            LOG.error("DHCP failed, cannot continue. Exception: %s",
-                      exc)
-            raise
+    # Bring up interface
+    try:
+        with EphemeralDHCPv4(connectivity_url=params['url']):
+            # Fetch the metadata
+            v1 = fetch_metadata(params)
+    except (NoDHCPLeaseError) as exc:
+        LOG.error("DHCP failed, cannot continue. Exception: %s",
+                  exc)
+        raise
 
     v1_json = json.loads(v1)
     metadata = v1_json
