@@ -6,6 +6,7 @@ import json
 import os
 import copy
 import re
+import base64
 
 from cloudinit import log as log
 from cloudinit import url_helper
@@ -14,11 +15,12 @@ from cloudinit import util
 from cloudinit import net
 from cloudinit import subp
 from cloudinit.net.dhcp import EphemeralDHCPv4, NoDHCPLeaseError
+from functools import lru_cache
 
 # Get LOG
 LOG = log.getLOG(__name__)
 
-@lru_cache(maxsize=None)
+@lru_cache()
 def get_metadata(params):
     # Bring up interface in local
     bring_up_interface(params['url'])
@@ -35,7 +37,7 @@ def get_metadata(params):
                 v1 = fetch_metadata(params)
         except (NoDHCPLeaseError) as exc:
             LOG.error("DHCP failed, cannot continue. Exception: %s",
-                    exc)
+                       exc)
                 raise
 
     v1_json = json.loads(v1)
@@ -77,22 +79,10 @@ def is_vultr():
     return False
 
 
-# Write vendor startup script
-def write_vendor_script(fname, content):
-    os.makedirs("/var/lib/scripts/vendor/", exist_ok=True)
-    file = open("/var/lib/scripts/vendor/%s" % fname, "w")
-    for line in content:
-        file.write(line)
-    file.close()
-    command = ["chmod", "+x", "/var/lib/scripts/vendor/%s" % fname]
-
-    try:
-        subp.subp(command)
-    except Exception as err:
-        LOG.error(
-            "Command: %s failed to execute. Error: %s",
-            " ".join(command), err)
-        raise
+def convert_to_base64(string):
+    string_bytes = string.encode('ascii')
+    b64_bytes = base64.b64encode(string_bytes)
+    return b64_bytes.decode('ascii')
 
 
 # Read Metadata endpoint
@@ -119,7 +109,7 @@ def fetch_metadata(params):
 
 
 # Wrapped for caching
-@lru_cache(maxsize=None)
+@lru_cache()
 def get_interface_map():
     return net.get_interfaces_by_mac()
 
@@ -259,8 +249,7 @@ def generate_config(config):
         config_template['packages'].append("ethtool")
 
     # Define vendor script
-    vendor_script = []
-    vendor_script.append("#!/bin/bash")
+    vendor_script = "#!/bin/bash"
 
     # Go through the interfaces
     for netcfg in config_template['network']['config']:
@@ -272,15 +261,30 @@ def generate_config(config):
                 # Set its multi-queue to num of cores as per RHEL Docs
                 name = netcfg['name']
                 command = "ethtool -L %s combined $(nproc --all)" % name
-                vendor_script.append(command)
+                vendor_script = '%s\n%s' % (vendor_script, command)
 
-    # Write vendor script
-    write_vendor_script("vultr_deploy.sh", vendor_script)
+    # Add vendor script to config
+    config_template['write_files'] = [
+        {
+            'encoding': 'b64',
+            'content': convert_to_base64(vendor_script),
+            'owner': 'root:root',
+            'path': '/var/lib/scripts/vendor/vultr-interface-setup.sh',
+            'permissions': '0750'
+        }
+    ]
 
     # Write the startup script
     if script and script != "echo No configured startup script":
-        lines = script.splitlines()
-        write_vendor_script("vultr_user_startup.sh", lines)
+        config_template['write_files'].append(
+            {
+                'encoding': 'b64',
+                'content': convert_to_base64(script),
+                'owner': 'root:root',
+                'path': '/var/lib/scripts/vendor/vultr-user-startup.sh',
+                'permissions': '0750'
+            }
+        )
 
     return config_template
 

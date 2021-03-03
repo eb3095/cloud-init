@@ -333,19 +333,16 @@ class TestDataSourceVultr(CiTestCase):
         self.tmp = self.tmp_dir()
 
     # Test the datasource itself
-    @mock.patch('cloudinit.sources.helpers.vultr.write_vendor_script')
     @mock.patch('cloudinit.net.get_interfaces_by_mac')
     @mock.patch('cloudinit.sources.helpers.vultr.is_vultr')
     @mock.patch('cloudinit.sources.helpers.vultr.get_metadata')
     def test_datasource(self,
                         mock_getmeta,
                         mock_isvultr,
-                        mock_netmap,
-                        mock_write_vendor_script):
+                        mock_netmap):
         mock_getmeta.return_value = VULTR_V1_2
         mock_isvultr.return_value = True
         mock_netmap.return_value = INTERFACE_MAP
-        mock_write_vendor_script.return_value = True
 
         source = DataSourceVultr.DataSourceVultr(
             settings.CFG_BUILTIN, None, helpers.Paths({'run_dir': self.tmp}))
@@ -374,64 +371,49 @@ class TestDataSourceVultr(CiTestCase):
         self.assertEqual(EXPECTED_VULTR_NETWORK_2, source.network_config)
 
     # Test overall config generation
-    @mock.patch('cloudinit.sources.helpers.vultr.write_vendor_script')
     @mock.patch('cloudinit.net.get_interfaces_by_mac')
     @mock.patch('cloudinit.sources.helpers.vultr.get_metadata')
     def test_get_data_1(self,
                         mock_getmeta,
-                        mock_netmap,
-                        mock_write_vendor_script):
+                        mock_netmap):
         mock_getmeta.return_value = VULTR_V1_1
-
         mock_netmap.return_value = INTERFACE_MAP
-        mock_write_vendor_script.return_value = True
 
         # Test data
         self.assertEqual(EXPECTED_VULTR_CONFIG_1, vultr.generate_config({}))
 
     # Test overall config generation
-    @mock.patch('cloudinit.sources.helpers.vultr.write_vendor_script')
     @mock.patch('cloudinit.net.get_interfaces_by_mac')
     @mock.patch('cloudinit.sources.helpers.vultr.get_metadata')
     def test_get_data_2(self,
                         mock_getmeta,
-                        mock_netmap,
-                        mock_write_vendor_script):
+                        mock_netmap):
         mock_getmeta.return_value = VULTR_V1_2
         mock_netmap.return_value = INTERFACE_MAP
-        mock_write_vendor_script.return_value = True
 
         # Test data with private networking
         self.assertEqual(EXPECTED_VULTR_CONFIG_2, vultr.generate_config({}))
 
     # Test network config generation
-    @mock.patch('cloudinit.sources.helpers.vultr.write_vendor_script')
     @mock.patch('cloudinit.net.get_interfaces_by_mac')
     @mock.patch('cloudinit.sources.helpers.vultr.get_metadata')
     def test_network_config(self,
                             mock_getmeta,
-                            mock_netmap,
-                            mock_write_vendor_script):
+                            mock_netmap):
         mock_getmeta.return_value = VULTR_V1_1
-
         mock_netmap.return_value = INTERFACE_MAP
-        mock_write_vendor_script.return_value = True
 
         self.assertEqual(EXPECTED_VULTR_NETWORK_1,
                          vultr.generate_network_config({}))
 
     # Test Private Networking config generation
-    @mock.patch('cloudinit.sources.helpers.vultr.write_vendor_script')
     @mock.patch('cloudinit.net.get_interfaces_by_mac')
     @mock.patch('cloudinit.sources.helpers.vultr.get_metadata')
     def test_private_network_config(self,
                                     mock_getmeta,
-                                    mock_netmap,
-                                    mock_write_vendor_script):
+                                    mock_netmap):
         mock_getmeta.return_value = VULTR_V1_2
-
         mock_netmap.return_value = INTERFACE_MAP
-        mock_write_vendor_script.return_value = True
 
         self.assertEqual(EXPECTED_VULTR_NETWORK_2,
                          vultr.generate_network_config({}))
