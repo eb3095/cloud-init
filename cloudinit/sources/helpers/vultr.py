@@ -123,7 +123,6 @@ def get_interface_name(mac):
 
 # Generate network configs
 def generate_network_config(config):
-    LOG.debug("DS: %s", json.dumps(config))
     md = get_metadata(config)
 
     network = {
@@ -232,6 +231,7 @@ def generate_private_network_interface(md):
 # This configuration is to replicate how
 # images are deployed on Vultr before Cloud-Init
 def generate_config(config):
+    LOG.debug("DS: %s", json.dumps(config))
     md = get_metadata(config)
 
     # Grab the startup script
