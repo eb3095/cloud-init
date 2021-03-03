@@ -365,7 +365,7 @@ class TestDataSourceVultr(CiTestCase):
                         mock_getmeta,
                         mock_isvultr,
                         mock_netmap):
-        mock_getmeta.return_value = VULTR_V1_2
+        mock_getmeta.return_value = json.dumps(VULTR_V1_2)
         mock_isvultr.return_value = True
         mock_netmap.return_value = INTERFACE_MAP
 
@@ -401,7 +401,7 @@ class TestDataSourceVultr(CiTestCase):
     def test_get_data_1(self,
                         mock_getmeta,
                         mock_netmap):
-        mock_getmeta.return_value = VULTR_V1_1
+        mock_getmeta.return_value = json.dumps(VULTR_V1_1)
         mock_netmap.return_value = INTERFACE_MAP
 
         # Test data
@@ -416,7 +416,7 @@ class TestDataSourceVultr(CiTestCase):
     def test_get_data_2(self,
                         mock_getmeta,
                         mock_netmap):
-        mock_getmeta.return_value = VULTR_V1_2
+        mock_getmeta.return_value = json.dumps(VULTR_V1_2)
         mock_netmap.return_value = INTERFACE_MAP
 
         # Test data with private networking
@@ -431,7 +431,7 @@ class TestDataSourceVultr(CiTestCase):
     def test_network_config(self,
                             mock_getmeta,
                             mock_netmap):
-        mock_getmeta.return_value = VULTR_V1_1
+        mock_getmeta.return_value = json.dumps(VULTR_V1_1)
         mock_netmap.return_value = INTERFACE_MAP
 
         self.assertEqual(EXPECTED_VULTR_NETWORK_1,
@@ -443,7 +443,7 @@ class TestDataSourceVultr(CiTestCase):
     def test_private_network_config(self,
                                     mock_getmeta,
                                     mock_netmap):
-        mock_getmeta.return_value = VULTR_V1_2
+        mock_getmeta.return_value = json.dumps(VULTR_V1_2)
         mock_netmap.return_value = INTERFACE_MAP
 
         self.assertEqual(EXPECTED_VULTR_NETWORK_2,
