@@ -23,11 +23,6 @@ LOG = log.getLogger(__name__)
 def get_metadata(params):
     params = json.loads(params)
 
-    # Make sure interface is not up already
-    # if net.has_url_connectivity(params['url']):
-    #    # Fetch the metadata
-    #    v1 = fetch_metadata(params)
-    # else:
     # Bring up interface
     try:
         with EphemeralDHCPv4(connectivity_url=params['url']):
